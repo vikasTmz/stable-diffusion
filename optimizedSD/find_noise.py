@@ -17,8 +17,8 @@ def pil_img_to_torch(pil_img, half=False):
 def pil_img_to_latent(model, img, batch_size=1, device='cuda', half=True):
     init_image = pil_img_to_torch(img, half=half).to(device)
     init_image = repeat(init_image, '1 ... -> b ...', b=batch_size)
-    # if half:
-        # return model.get_first_stage_encoding(model.encode_first_stage(init_image.half()))
+    if half:
+        return model.get_first_stage_encoding(model.encode_first_stage(init_image.half()))
     return model.get_first_stage_encoding(model.encode_first_stage(init_image))
 
 def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_scale=0.0, verbose=False, normalize=True, img=None):
@@ -60,7 +60,7 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
                 print("cond_in: ", cond_in.size())
 
                 eps = model.apply_model(x_in * c_in, t, cond=cond_in)
-                print("Eps: ", eps.size())
+                print("Eps: ", (eps * c_out).size())
                 denoised_uncond, denoised_cond = (x_in + eps * c_out).chunk(2)
                 
                 denoised = denoised_uncond + (denoised_cond - denoised_uncond) * cond_scale
