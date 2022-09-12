@@ -266,11 +266,10 @@ init_latent = modelFS.get_first_stage_encoding(
 modelCS.to(opt.device)
 
 noise_out = find_noise_for_image(model, modelCS, modelFS, init_latent,\
- 'Photo of a smiling woman with brown hair', steps=50, cond_scale=0.0)#img=Image.open(opt.init_img))
-
+ 'Photo of a smiling woman with brown hair', steps=50, cond_scale=0.0, img=Image.open(opt.init_img))
 print("Found Noise Tensor")
 print("Noise_out: ",noise_out.size())
-# exit()
+exit()
 
 if opt.device != "cpu":
     mem = torch.cuda.memory_allocated() / 1e6
@@ -353,10 +352,10 @@ with torch.no_grad():
                     opt.ddim_eta,
                     opt.ddim_steps,
                 )
-                print("Z_enc: ", z_enc.size())
 
                 # New: replace z_Enc with noise vector
-                z_enc = noise_out
+                # z_enc = noise_out
+
                 # decode it
                 samples_ddim = model.sample(
                     t_enc,
