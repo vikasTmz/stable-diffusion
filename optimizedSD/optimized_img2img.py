@@ -263,6 +263,8 @@ init_image = repeat(init_image, "1 ... -> b ...", b=batch_size)
 init_latent = modelFS.get_first_stage_encoding(
     modelFS.encode_first_stage(init_image))  # move to latent space
 
+modelCS.to(opt.device)
+
 noise_out = find_noise_for_image(model, modelCS, modelFS, init_latent,\
  'Photo of a smiling woman with brown hair', steps=50, cond_scale=1.0)
 
