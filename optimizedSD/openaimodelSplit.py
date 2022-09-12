@@ -803,6 +803,7 @@ class UNetModelDecode(nn.Module):
             print(h.size())
             h = th.cat([h, h], dim=1) #hs.pop()
             h = module(h, emb, context)
+        exit()
         h = h.type(tp)
         if self.predict_codebook_ids:
             return self.id_predictor(h)
