@@ -21,7 +21,7 @@ def pil_img_to_latent(model, img, batch_size=1, device='cuda', half=True):
     return model.get_first_stage_encoding(model.encode_first_stage(init_image))
 
 def find_noise_for_image(model, img, prompt, steps=200, cond_scale=0.0, verbose=False, normalize=True):
-    x = pil_img_to_latent(img, batch_size=1, device='cuda', half=True)
+    x = pil_img_to_latent(model, img, batch_size=1, device='cuda', half=True)
 
     with torch.no_grad():
         with autocast('cuda'):
