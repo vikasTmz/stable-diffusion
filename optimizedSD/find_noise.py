@@ -33,7 +33,6 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
             dnw = K.external.CompVisDenoiser(model)
             sigmas = dnw.get_sigmas(steps).flip(0)
             sigmas = sigmas.to('cuda')
-            # print(dnw.device(), sigmas.device())
 
     if verbose:
         print(sigmas)
@@ -48,12 +47,11 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
                 c_out, c_in = [K.utils.append_dims(k, x_in.ndim) for k in dnw.get_scalings(sigma_in)]
                 
                 if i == 1:
-                    print(sigmas[i].device, s_in.device)
                     t = dnw.sigma_to_t(torch.cat([sigmas[i] * s_in] * 2).to('cpu'))
                 else:
                     t = dnw.sigma_to_t(sigma_in)
                     
-                print(x_in.device, c_in.device, t.device, cond_in.device)
+                t = t.to('cuda')
                 eps = model.apply_model(x_in * c_in, t, cond=cond_in)
                 denoised_uncond, denoised_cond = (x_in + eps * c_out).chunk(2)
                 
