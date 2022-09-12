@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 # import k_diffusion as K
+from samplers import CompVisDenoiser
 
 from PIL import Image
 from torch import autocast
@@ -20,16 +21,17 @@ def pil_img_to_latent(model, img, batch_size=1, device='cuda', half=True):
         return model.get_first_stage_encoding(model.encode_first_stage(init_image.half()))
     return model.get_first_stage_encoding(model.encode_first_stage(init_image))
 
-def find_noise_for_image(model, img, prompt, steps=200, cond_scale=0.0, verbose=False, normalize=True):
-    x = pil_img_to_latent(model, img, batch_size=1, device='cuda', half=True)
+def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_scale=0.0, verbose=False, normalize=True, img=None):
+    # x = pil_img_to_latent(model, img, batch_size=1, device='cuda', half=True)
 
     with torch.no_grad():
         with autocast('cuda'):
-            uncond = model.get_learned_conditioning([''])
-            cond = model.get_learned_conditioning([prompt])
+            uncond = modelCS.get_learned_conditioning([''])
+            cond = modelCS.get_learned_conditioning([prompt])
 
     s_in = x.new_ones([x.shape[0]])
-    dnw = K.external.CompVisDenoiser(model)
+    # dnw = K.external.CompVisDenoiser(model)
+    dnw = CompVisDenoiser(model)
     sigmas = dnw.get_sigmas(steps).flip(0)
 
     if verbose:
