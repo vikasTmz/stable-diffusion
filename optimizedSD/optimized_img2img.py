@@ -266,7 +266,7 @@ init_latent = modelFS.get_first_stage_encoding(
 modelCS.to(opt.device)
 
 noise_out = find_noise_for_image(model, modelCS, modelFS, init_latent,\
- 'Photo of a smiling woman with brown hair', steps=50, cond_scale=1.0)#img=Image.open(opt.init_img).convert("RGB"))
+ 'Photo of a smiling woman with brown hair', steps=50, cond_scale=1.0, img=Image.open(opt.init_img))
 
 print("Found Noise Tensor")
 print(noise_out, noise_out.size)
