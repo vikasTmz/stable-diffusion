@@ -23,7 +23,7 @@ def pil_img_to_latent(model, img, batch_size=1, device='cuda', half=True):
 
 def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_scale=0.0, verbose=False, normalize=True, img=None):
     if img:
-        x = pil_img_to_latent(model, img, batch_size=1, device='cuda', half=True)
+        x = pil_img_to_latent(modelFS, img, batch_size=1, device='cuda', half=True)
 
     with torch.no_grad():
         with autocast('cuda'):
