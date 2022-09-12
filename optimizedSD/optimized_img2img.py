@@ -354,6 +354,9 @@ with torch.no_grad():
                     opt.ddim_steps,
                 )
                 print("Z_enc: ", z_enc.size())
+
+                # New: replace z_Enc with noise vector
+                z_enc = noise_out
                 # decode it
                 samples_ddim = model.sample(
                     t_enc,
