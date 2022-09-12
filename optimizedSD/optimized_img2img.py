@@ -263,6 +263,11 @@ init_image = repeat(init_image, "1 ... -> b ...", b=batch_size)
 init_latent = modelFS.get_first_stage_encoding(
     modelFS.encode_first_stage(init_image))  # move to latent space
 
+noise_out = find_noise_for_image(modelFS, Image.open(opt.init_img).convert("RGB"), 'Photo of a smiling woman with brown hair', steps=50, cond_scale=1.0)
+print("Found Noise Tensor")
+print(noise_out, noise_out.size)
+exit()
+
 if opt.device != "cpu":
     mem = torch.cuda.memory_allocated() / 1e6
     modelFS.to("cpu")
@@ -277,12 +282,6 @@ sample_path = os.path.join(outpath, str(opt.init_img).split(
 # old, "_".join(re.split(":| ", prompts[0]))
 
 os.makedirs(sample_path, exist_ok=True)
-
-
-noise_out = find_noise_for_image(model, Image.open(opt.init_img).convert("RGB"), 'Photo of a smiling woman with brown hair', steps=50, cond_scale=1.0)
-print("Found Noise Tensor")
-print(noise_out, noise_out.size)
-exit()
 
 assert 0.0 <= opt.strength <= 1.0, "can only work with strength in [0.0, 1.0]"
 
