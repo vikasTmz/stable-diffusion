@@ -20,6 +20,7 @@ from einops import rearrange, repeat
 from ldm.util import instantiate_from_config
 from optimUtils import split_weighted_subprompts, logger
 from transformers import logging
+from find_noise import find_noise_for_image
 import pandas as pd
 logging.set_verbosity_error()
 
@@ -276,6 +277,13 @@ sample_path = os.path.join(outpath, str(opt.init_img).split(
 # old, "_".join(re.split(":| ", prompts[0]))
 
 os.makedirs(sample_path, exist_ok=True)
+
+
+noise_out = find_noise_for_image(model, Image.open(opt.init_img).convert("RGB"), \
+ 'Photo of a smiling woman with brown hair', steps=50, cond_scale=1.0)
+print("Found Noise Tensor")
+print(noise_out, noise_out.size)
+exit()
 
 assert 0.0 <= opt.strength <= 1.0, "can only work with strength in [0.0, 1.0]"
 
