@@ -49,7 +49,7 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
                 
                 if i == 1:
                     print(sigmas[i].device, s_in.device)
-                    t = dnw.sigma_to_t(torch.cat([sigmas[i] * s_in] * 2))
+                    t = dnw.sigma_to_t(torch.cat([sigmas[i] * s_in] * 2).to('cpu'))
                 else:
                     t = dnw.sigma_to_t(sigma_in)
                     
