@@ -25,6 +25,7 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
     if img:
         x = pil_img_to_latent(modelFS, img, batch_size=1, device='cuda', half=True)
 
+    print("X: ", x.size())
     with torch.no_grad():
         with autocast('cuda'):
             uncond = modelCS.get_learned_conditioning([''])
