@@ -34,7 +34,7 @@ def load_model_from_config(ckpt, verbose=False):
 
 
 config = "optimizedSD/v1-inference.yaml"
-ckpt = "models/ldm/stable-diffusion-v1/model.ckpt"
+ckpt = "models/ldm/sd-v1-4.ckpt"
 
 parser = argparse.ArgumentParser()
 

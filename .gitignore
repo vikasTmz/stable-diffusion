@@ -1,0 +1,16 @@
+ldm/__pycache__/
+ldm/models/__pycache__/
+ldm/models/diffusion/__pycache__/
+ldm/modules/__pycache__/
+ldm/modules/diffusionmodules/__pycache__/
+ldm/modules/distributions/__pycache__/
+ldm/modules/encoders/__pycache__/
+optimizedSD/__pycache__/
+
+logs/
+models/ldm/sd-v1-3-full-ema.ckpt
+models/ldm/sd-v1-4.ckpt
+
+outputs/
+inputs/
+

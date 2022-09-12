@@ -1,6 +1,10 @@
-import argparse, os, re
+import argparse
+import os
+import re
 import torch
 import numpy as np
+import random
+import string
 from random import randint
 from omegaconf import OmegaConf
 from PIL import Image
@@ -43,7 +47,8 @@ def load_img(path, h0, w0):
     if h0 is not None and w0 is not None:
         h, w = h0, w0
 
-    w, h = map(lambda x: x - x % 64, (w, h))  # resize to integer multiple of 32
+    # resize to integer multiple of 32
+    w, h = map(lambda x: x - x % 64, (w, h))
 
     print(f"New image size ({w}, {h})")
     image = image.resize((w, h), resample=Image.LANCZOS)
@@ -54,15 +59,17 @@ def load_img(path, h0, w0):
 
 
 config = "optimizedSD/v1-inference.yaml"
-ckpt = "models/ldm/stable-diffusion-v1/model.ckpt"
+ckpt = "models/ldm/sd-v1-4.ckpt"
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
     "--prompt", type=str, nargs="?", default="a painting of a virus monster playing guitar", help="the prompt to render"
 )
-parser.add_argument("--outdir", type=str, nargs="?", help="dir to write results to", default="outputs/img2img-samples")
-parser.add_argument("--init-img", type=str, nargs="?", help="path to the input image")
+parser.add_argument("--outdir", type=str, nargs="?",
+                    help="dir to write results to", default="outputs/img2img-samples")
+parser.add_argument("--init-img", type=str, nargs="?",
+                    help="path to the input image")
 
 parser.add_argument(
     "--skip_grid",
@@ -186,7 +193,7 @@ if opt.seed == None:
 seed_everything(opt.seed)
 
 # Logging
-logger(vars(opt), log_csv = "logs/img2img_logs.csv")
+logger(vars(opt), log_csv="logs/img2img_logs.csv")
 
 sd = load_model_from_config(f"{ckpt}")
 li, lo = [], []
@@ -207,6 +214,8 @@ for key in lo:
     sd["model2." + key[6:]] = sd.pop(key)
 
 config = OmegaConf.load(f"{config}")
+
+print(opt.init_img)
 
 assert os.path.isfile(opt.init_img)
 init_image = load_img(opt.init_img, opt.H, opt.W).to(opt.device)
@@ -250,7 +259,8 @@ else:
 modelFS.to(opt.device)
 
 init_image = repeat(init_image, "1 ... -> b ...", b=batch_size)
-init_latent = modelFS.get_first_stage_encoding(modelFS.encode_first_stage(init_image))  # move to latent space
+init_latent = modelFS.get_first_stage_encoding(
+    modelFS.encode_first_stage(init_image))  # move to latent space
 
 if opt.device != "cpu":
     mem = torch.cuda.memory_allocated() / 1e6
@@ -259,10 +269,22 @@ if opt.device != "cpu":
         time.sleep(1)
 
 
+suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+
+sample_path = os.path.join(outpath, str(opt.init_img).split(
+    '/')[-1].split('.')[0] + '_' + suffix)
+# old, "_".join(re.split(":| ", prompts[0]))
+
+os.makedirs(sample_path, exist_ok=True)
+
 assert 0.0 <= opt.strength <= 1.0, "can only work with strength in [0.0, 1.0]"
+
+iterations = 20
+
+# for strength in range(0, iterations):
+#     opt.strength = strength / iterations
 t_enc = int(opt.strength * opt.ddim_steps)
 print(f"target t_enc is {t_enc} steps")
-
 
 if opt.precision == "autocast" and opt.device != "cpu":
     precision_scope = autocast
@@ -276,15 +298,20 @@ with torch.no_grad():
     for n in trange(opt.n_iter, desc="Sampling"):
         for prompts in tqdm(data, desc="data"):
 
-            sample_path = os.path.join(outpath, "_".join(re.split(":| ", prompts[0])))[:150]
-            os.makedirs(sample_path, exist_ok=True)
             base_count = len(os.listdir(sample_path))
+
+            f = open(os.path.join(sample_path, 'prompts.txt'), 'w')
+            f.write('%s\n' % (prompts[0]))
+            f.write('seed = %d, ddim_steps = %d' %
+                    (opt.seed, opt.ddim_steps))
+            f.close()
 
             with precision_scope("cuda"):
                 modelCS.to(opt.device)
                 uc = None
                 if opt.scale != 1.0:
-                    uc = modelCS.get_learned_conditioning(batch_size * [""])
+                    uc = modelCS.get_learned_conditioning(
+                        batch_size * [""])
                 if isinstance(prompts, tuple):
                     prompts = list(prompts)
 
@@ -297,7 +324,8 @@ with torch.no_grad():
                         weight = weights[i]
                         # if not skip_normalize:
                         weight = weight / totalWeight
-                        c = torch.add(c, modelCS.get_learned_conditioning(subprompts[i]), alpha=weight)
+                        c = torch.add(c, modelCS.get_learned_conditioning(
+                            subprompts[i]), alpha=weight)
                 else:
                     c = modelCS.get_learned_conditioning(prompts)
 
@@ -322,21 +350,30 @@ with torch.no_grad():
                     z_enc,
                     unconditional_guidance_scale=opt.scale,
                     unconditional_conditioning=uc,
-                    sampler = opt.sampler
+                    sampler=opt.sampler
                 )
 
                 modelFS.to(opt.device)
                 print("saving images")
+                seed = opt.seed
                 for i in range(batch_size):
 
-                    x_samples_ddim = modelFS.decode_first_stage(samples_ddim[i].unsqueeze(0))
-                    x_sample = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
-                    x_sample = 255.0 * rearrange(x_sample[0].cpu().numpy(), "c h w -> h w c")
+                    x_samples_ddim = modelFS.decode_first_stage(
+                        samples_ddim[i].unsqueeze(0))
+                    x_sample = torch.clamp(
+                        (x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
+                    x_sample = 255.0 * \
+                        rearrange(
+                            x_sample[0].cpu().numpy(), "c h w -> h w c")
                     Image.fromarray(x_sample.astype(np.uint8)).save(
-                        os.path.join(sample_path, "seed_" + str(opt.seed) + "_" + f"{base_count:05}.{opt.format}")
+
+                        os.path.join(sample_path, "seed_" + str(seed)
+                                     + "_" + str(opt.strength) + f".{opt.format}")
+
+                        #  + "_" + f"{base_count:05}.{opt.format}"
                     )
                     seeds += str(opt.seed) + ","
-                    opt.seed += 1
+                    seed += 1
                     base_count += 1
 
                 if opt.device != "cpu":
