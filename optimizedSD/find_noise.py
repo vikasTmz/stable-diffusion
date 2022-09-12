@@ -47,7 +47,7 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
                 c_out, c_in = [K.utils.append_dims(k, x_in.ndim) for k in dnw.get_scalings(sigma_in)]
                 
                 if i == 1:
-                    print(sigmas[i].device(), s_in.device())
+                    print(sigmas[i].device, s_in.device)
                     t = dnw.sigma_to_t(torch.cat([sigmas[i] * s_in] * 2))
                 else:
                     t = dnw.sigma_to_t(sigma_in)
