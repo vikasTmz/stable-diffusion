@@ -798,7 +798,7 @@ class UNetModelDecode(nn.Module):
         """
         
         for module in self.output_blocks:
-            print(h.size(), hs.size())
+            print(h.size(), len(hs))
             h = th.cat([h, hs.pop()], dim=1)
             h = module(h, emb, context)
         h = h.type(tp)
