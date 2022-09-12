@@ -1,7 +1,7 @@
 import torch
 import numpy as np
-# import k_diffusion as K
-from samplers import CompVisDenoiser
+import k_diffusion as K
+# from samplers import CompVisDenoiser
 
 from PIL import Image
 from torch import autocast
@@ -30,8 +30,7 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
             cond = modelCS.get_learned_conditioning([prompt])
 
     s_in = x.new_ones([x.shape[0]])
-    # dnw = K.external.CompVisDenoiser(model)
-    dnw = CompVisDenoiser(model)
+    dnw = K.external.CompVisDenoiser(model)
     sigmas = dnw.get_sigmas(steps).flip(0)
 
     if verbose:
