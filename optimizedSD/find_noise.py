@@ -38,7 +38,7 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
 
     with torch.no_grad():
         with autocast('cuda'):
-            for i in trange(1, len(sigmas)):
+            for i in range(1, len(sigmas)):
                 x_in = torch.cat([x] * 2)
                 sigma_in = torch.cat([sigmas[i - 1] * s_in] * 2)
                 cond_in = torch.cat([uncond, cond])
