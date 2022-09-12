@@ -32,6 +32,7 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
     s_in = x.new_ones([x.shape[0]])
     dnw = K.external.CompVisDenoiser(model)
     sigmas = dnw.get_sigmas(steps).flip(0)
+    sigmas.to('cuda')
 
     if verbose:
         print(sigmas)
