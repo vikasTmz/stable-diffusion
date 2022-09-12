@@ -60,7 +60,7 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
                 # print("t: ", t.size())
                 # print("cond_in: ", cond_in.size())
 
-                eps = modelFS.apply_model(x_in * c_in, t, cond=cond_in)
+                eps = model.apply_model(x_in * c_in, t, cond=cond_in)
                 # eps = torch.cat([eps] * 10)
                 denoised_uncond, denoised_cond = (x_in + eps * c_out).chunk(2)
                 
