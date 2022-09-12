@@ -279,8 +279,7 @@ sample_path = os.path.join(outpath, str(opt.init_img).split(
 os.makedirs(sample_path, exist_ok=True)
 
 
-noise_out = find_noise_for_image(model, Image.open(opt.init_img).convert("RGB"), \
- 'Photo of a smiling woman with brown hair', steps=50, cond_scale=1.0)
+noise_out = find_noise_for_image(model, Image.open(opt.init_img).convert("RGB"), 'Photo of a smiling woman with brown hair', steps=50, cond_scale=1.0)
 print("Found Noise Tensor")
 print(noise_out, noise_out.size)
 exit()
