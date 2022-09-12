@@ -796,11 +796,12 @@ class UNetModelDecode(nn.Module):
         :param y: an [N] Tensor of labels, if class-conditional.
         :return: an [N x C x ...] Tensor of outputs.
         """
+        for i in range(len(hs)):
+            print(i, hs[i].size())
+
         
         for module in self.output_blocks:
-            print("Before: ",h.size(), hs[-1].size())
             h = th.cat([h, hs.pop()], dim=1)
-            print("After: ",h.size(), hs[-1].size())
             h = module(h, emb, context)
         h = h.type(tp)
         if self.predict_codebook_ids:
