@@ -798,9 +798,9 @@ class UNetModelDecode(nn.Module):
         """
         
         for module in self.output_blocks:
-            print("Before: ",h.size(), len(hs), hs.type)
+            print("Before: ",h.size(), hs[-1].size())
             h = th.cat([h, hs.pop()], dim=1)
-            print("After: ",h.size(), len(hs))
+            print("After: ",h.size(), hs[-1].size())
             h = module(h, emb, context)
         h = h.type(tp)
         if self.predict_codebook_ids:
