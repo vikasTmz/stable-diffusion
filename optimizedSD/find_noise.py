@@ -29,10 +29,10 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
             uncond = modelCS.get_learned_conditioning([''])
             cond = modelCS.get_learned_conditioning([prompt])
 
-    s_in = x.new_ones([x.shape[0]])
-    dnw = K.external.CompVisDenoiser(model)
-    sigmas = dnw.get_sigmas(steps).flip(0)
-    sigmas.to('cuda')
+            s_in = x.new_ones([x.shape[0]])
+            dnw = K.external.CompVisDenoiser(model)
+            sigmas = dnw.get_sigmas(steps).flip(0)
+            print(dnw.device, sigmas.device)
 
     if verbose:
         print(sigmas)
