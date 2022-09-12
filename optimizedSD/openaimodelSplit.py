@@ -798,10 +798,10 @@ class UNetModelDecode(nn.Module):
         """
         for i in range(len(hs)):
             print(i, hs[i].size())
-
         
         for module in self.output_blocks:
-            h = th.cat([h, hs.pop()], dim=1)
+            print(h.size())
+            h = th.cat([h, h], dim=1) #hs.pop()
             h = module(h, emb, context)
         h = h.type(tp)
         if self.predict_codebook_ids:
