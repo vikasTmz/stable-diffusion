@@ -53,8 +53,9 @@ def find_noise_for_image(model, modelCS, modelFS, x, prompt, steps=200, cond_sca
                     t = dnw.sigma_to_t(sigma_in)
                     
                 t = t.to('cuda')
+                print("X_in: ", x_in.size())
                 eps = model.apply_model(x_in * c_in, t, cond=cond_in)
-                print(x_in.size(), eps.size())
+                print("Eps: ", eps.size())
                 denoised_uncond, denoised_cond = (x_in + eps * c_out).chunk(2)
                 
                 denoised = denoised_uncond + (denoised_cond - denoised_uncond) * cond_scale
